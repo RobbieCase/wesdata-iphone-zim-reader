@@ -1,0 +1,22 @@
+WESDATA IPHONE READER — MANUAL SHORTCUT RECIPE
+
+This is an optional convenience launcher. No signed .shortcut is included;
+the copy-and-paste method in README_IPHONE_FIRST.txt works without it.
+
+FIRST-TIME SETUP (do this while the files are already on the phone/USB):
+
+1. In Apple's built-in Shortcuts app, create a shortcut named "WESDATA Offline Reader".
+2. Add the action "Run JavaScript on Web Page".
+3. Replace its sample code with the entire contents of SHORTCUT_JAVASCRIPT.txt.
+4. Open the shortcut details. Turn on "Show in Share Sheet" and allow Safari web pages.
+5. If iPhone asks to allow scripting, approve it only for this trusted shortcut.
+
+TO USE WITH NO INTERNET:
+
+1. Open IPHONE_OFFLINE_START_URL.txt in Files, copy the entire line, and paste it into Safari's address bar.
+2. When the WESDATA launch page appears, use Share > WESDATA Offline Reader if needed.
+3. Tap Load reader and select IPHONE_ZIM_READER_PAYLOAD.html from the USB.
+4. In the reader, choose a .zim archive from the USB.
+
+The start URL also contains the tiny launch page directly, so on many Safari versions
+steps 1 and 3 work without running the shortcut at all.

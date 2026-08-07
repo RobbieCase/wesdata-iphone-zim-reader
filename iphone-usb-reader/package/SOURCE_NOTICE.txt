@@ -1,0 +1,28 @@
+WESDATA EXPERIMENTAL IPHONE ZIM READER — SOURCE AND LICENSE NOTICE
+
+Based on Kiwix JS 4.3.15:
+https://github.com/kiwix/kiwix-js
+
+Source commit used:
+38b3c7f89f3a4d0ac94f6b3e01b38fd1f85f04e8
+
+License: GNU General Public License version 3. A copy is included as
+LICENSE-GPLv3.txt.
+
+Local modifications for this emergency build:
+- Bundled the reader UI, English translation, styles, and JavaScript into one
+  HTML payload so Safari can load it from a user-selected file.
+- Disabled the libzim worker path and enabled Kiwix JS restricted/pure-JS mode.
+- Forced the bundled ASM XZ and Zstandard decoders so no external WASM file or
+  web server is required.
+- Replaced external iframe pages and image references with embedded equivalents.
+- Added a small Safari bootstrap page and optional Apple Shortcuts injection.
+
+The local changes are included as MODIFIED_SOURCE.patch and the bundling script
+is included in the repository as iphone-usb-reader/build.mjs. This preservation
+repository already contains the modified source. Run `npm ci`, then
+`npm run build-min`, then `node iphone-usb-reader/build.mjs` from the repository
+root to regenerate the package.
+
+This proof of concept is unofficial and is not endorsed or supported by the
+Kiwix project or Apple.

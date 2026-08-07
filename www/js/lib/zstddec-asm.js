@@ -1,6 +1,6 @@
 
 var ZD = (function() {
-  var _scriptDir = import.meta.url;
+  var _scriptDir = self.__KIWIX_USB_EMERGENCY__ ? 'data:text/javascript,' : import.meta.url;
   
   return (
 function(ZD) {

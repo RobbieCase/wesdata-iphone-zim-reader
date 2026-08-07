@@ -3216,7 +3216,11 @@ function displayArticleContentInIframe (dirEntry, htmlArticle) {
     };
 
     // Load the blank article to clear the iframe (NB iframe onload event runs *after* this)
-    iframeArticleContent.src = 'article.html';
+    if (self.__KIWIX_USB_EMERGENCY__) {
+        iframeArticleContent.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body></body></html>';
+    } else {
+        iframeArticleContent.src = 'article.html';
+    }
 
     function parseAnchorsJQuery () {
         var currentProtocol = location.protocol;
@@ -3532,6 +3536,7 @@ function updateCacheStatus (title) {
  * @param {String} titleSearch
  */
 function pushBrowserHistoryState (title, titleSearch) {
+    if (self.__KIWIX_USB_EMERGENCY__) return;
     var stateObj = {};
     var urlParameters;
     var stateLabel;

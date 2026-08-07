@@ -95,7 +95,7 @@ var instantiateDecoder = function (instance) {
 };
 
 // Select asm or wasm conditionally
-if ('WebAssembly' in self && 'fetch' in self) {
+if (!self.__KIWIX_USB_EMERGENCY__ && 'WebAssembly' in self && 'fetch' in self) {
     console.debug('Instantiating WASM zstandard decoder');
     ZSTDMachineType = 'WASM';
 } else {
@@ -104,7 +104,10 @@ if ('WebAssembly' in self && 'fetch' in self) {
 }
 
 var loadASM = function () {
-    ZDASM().then(function (inst) {
+    var moduleOptions = self.__KIWIX_USB_EMERGENCY__ ? {
+        locateFile: function () { return 'data:application/octet-stream;base64,'; }
+    } : undefined;
+    ZDASM(moduleOptions).then(function (inst) {
         params.decompressorAPI.assemblerMachineType = ZSTDMachineType;
         instantiateDecoder(inst);
     }).catch(function (err) {

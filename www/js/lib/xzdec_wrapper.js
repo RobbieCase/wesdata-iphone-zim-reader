@@ -31,7 +31,7 @@ import XZWASM from './xzdec-wasm.js';
 var XZMachineType = null;
 
 // Select asm or wasm conditionally
-if ('WebAssembly' in self && 'fetch' in self) {
+if (!self.__KIWIX_USB_EMERGENCY__ && 'WebAssembly' in self && 'fetch' in self) {
     console.debug('Instantiating WASM xz decoder');
     XZMachineType = 'WASM';
 } else {
@@ -53,7 +53,10 @@ if ('WebAssembly' in self && 'fetch' in self) {
 var xzdec;
 
 var loadASM = function () {
-    XZASM().then(function (instance) {
+    var moduleOptions = self.__KIWIX_USB_EMERGENCY__ ? {
+        locateFile: function () { return 'data:application/octet-stream;base64,'; }
+    } : undefined;
+    XZASM(moduleOptions).then(function (instance) {
         params.decompressorAPI.assemblerMachineType = XZMachineType;
         xzdec = instance;
     }).catch(function (err) {

@@ -1,0 +1,179 @@
+diff --git a/www/js/app.js b/www/js/app.js
+index 221ef04..3626b56 100644
+--- a/www/js/app.js
++++ b/www/js/app.js
+@@ -3216,7 +3216,11 @@ function displayArticleContentInIframe (dirEntry, htmlArticle) {
+     };
+ 
+     // Load the blank article to clear the iframe (NB iframe onload event runs *after* this)
+-    iframeArticleContent.src = 'article.html';
++    if (self.__KIWIX_USB_EMERGENCY__) {
++        iframeArticleContent.srcdoc = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body></body></html>';
++    } else {
++        iframeArticleContent.src = 'article.html';
++    }
+ 
+     function parseAnchorsJQuery () {
+         var currentProtocol = location.protocol;
+@@ -3532,6 +3536,7 @@ function updateCacheStatus (title) {
+  * @param {String} titleSearch
+  */
+ function pushBrowserHistoryState (title, titleSearch) {
++    if (self.__KIWIX_USB_EMERGENCY__) return;
+     var stateObj = {};
+     var urlParameters;
+     var stateLabel;
+diff --git a/www/js/lib/translateUI.js b/www/js/lib/translateUI.js
+index 532bb42..71b3363 100644
+--- a/www/js/lib/translateUI.js
++++ b/www/js/lib/translateUI.js
+@@ -45,6 +45,10 @@ function loadTranslationStrings (langCode) {
+     if (!/^[a-zA-Z]{2,4}$/.test(langCode)) {
+         return Promise.reject(new Error('Invalid language code: ' + langCode));
+     }
++    if (self.__KIWIX_USB_EMERGENCY__ && langCode === 'en' && document.localeJson && document.localeJson.en) {
++        currentLanguage = document.localeJson.en.translation;
++        return Promise.resolve();
++    }
+     return util.getJSONPObject('../i18n/' + langCode + '.jsonp.js').then(function (translations) {
+         currentLanguage = translations[langCode]['translation'];
+         // i18next.init({
+diff --git a/www/js/lib/xzdec-asm.js b/www/js/lib/xzdec-asm.js
+index 07f7333..385c147 100644
+--- a/www/js/lib/xzdec-asm.js
++++ b/www/js/lib/xzdec-asm.js
+@@ -1,6 +1,6 @@
+ 
+ var XZ = (function() {
+-  var _scriptDir = import.meta.url;
++  var _scriptDir = self.__KIWIX_USB_EMERGENCY__ ? 'data:text/javascript,' : import.meta.url;
+   
+   return (
+ function(XZ) {
+@@ -47,4 +47,4 @@ if(a.preInit)for("function"==typeof a.preInit&&(a.preInit=[a.preInit]);0<a.preIn
+ }
+ );
+ })();
+-export default XZ;
+\ No newline at end of file
++export default XZ;
+diff --git a/www/js/lib/xzdec-wasm.js b/www/js/lib/xzdec-wasm.js
+index fbbd0a9..4c75b90 100644
+--- a/www/js/lib/xzdec-wasm.js
++++ b/www/js/lib/xzdec-wasm.js
+@@ -1,6 +1,6 @@
+ 
+ var XZ = (function() {
+-  var _scriptDir = import.meta.url;
++  var _scriptDir = self.__KIWIX_USB_EMERGENCY__ ? 'data:text/javascript,' : import.meta.url;
+   
+   return (
+ function(XZ) {
+@@ -25,4 +25,4 @@ if(a.preInit)for("function"==typeof a.preInit&&(a.preInit=[a.preInit]);0<a.preIn
+ }
+ );
+ })();
+-export default XZ;
+\ No newline at end of file
++export default XZ;
+diff --git a/www/js/lib/xzdec_wrapper.js b/www/js/lib/xzdec_wrapper.js
+index edeca8d..7eedee9 100644
+--- a/www/js/lib/xzdec_wrapper.js
++++ b/www/js/lib/xzdec_wrapper.js
+@@ -31,7 +31,7 @@ import XZWASM from './xzdec-wasm.js';
+ var XZMachineType = null;
+ 
+ // Select asm or wasm conditionally
+-if ('WebAssembly' in self && 'fetch' in self) {
++if (!self.__KIWIX_USB_EMERGENCY__ && 'WebAssembly' in self && 'fetch' in self) {
+     console.debug('Instantiating WASM xz decoder');
+     XZMachineType = 'WASM';
+ } else {
+@@ -53,7 +53,10 @@ if ('WebAssembly' in self && 'fetch' in self) {
+ var xzdec;
+ 
+ var loadASM = function () {
+-    XZASM().then(function (instance) {
++    var moduleOptions = self.__KIWIX_USB_EMERGENCY__ ? {
++        locateFile: function () { return 'data:application/octet-stream;base64,'; }
++    } : undefined;
++    XZASM(moduleOptions).then(function (instance) {
+         params.decompressorAPI.assemblerMachineType = XZMachineType;
+         xzdec = instance;
+     }).catch(function (err) {
+diff --git a/www/js/lib/zimArchive.js b/www/js/lib/zimArchive.js
+index 364aa71..b9a85fd 100644
+--- a/www/js/lib/zimArchive.js
++++ b/www/js/lib/zimArchive.js
+@@ -147,7 +147,7 @@ function ZIMArchive (storage, path, callbackReady, callbackError) {
+                 // There is currently an exception thrown in the libzim wasm if we attempt to load a split ZIM archive, so we work around
+                 // In case of a split ZIM, It will not be loaded properly by libzim if libzim is enabled
+                 var isSplitZim = /\.zima.$/i.test(that.file._files[0].name);
+-                if (that.file.fullTextIndex && (params.debugLibzimASM || !isSplitZim && typeof Atomics !== 'undefined' &&
++                if (!self.__KIWIX_USB_EMERGENCY__ && that.file.fullTextIndex && (params.debugLibzimASM || !isSplitZim && typeof Atomics !== 'undefined' &&
+                     // Note that Android and NWJS currently throw due to problems with Web Worker context
+                     !/Android/.test(params.appType) && !(window.nw && that.file._files[0].readMode === 'electron')) || params.useLibzim) {
+                     var libzimReaderType = params.libzimMode;
+diff --git a/www/js/lib/zstddec-asm.js b/www/js/lib/zstddec-asm.js
+index 04bcbba..80ab195 100644
+--- a/www/js/lib/zstddec-asm.js
++++ b/www/js/lib/zstddec-asm.js
+@@ -1,6 +1,6 @@
+ 
+ var ZD = (function() {
+-  var _scriptDir = import.meta.url;
++  var _scriptDir = self.__KIWIX_USB_EMERGENCY__ ? 'data:text/javascript,' : import.meta.url;
+   
+   return (
+ function(ZD) {
+@@ -52,4 +52,4 @@ if(a.preInit)for("function"==typeof a.preInit&&(a.preInit=[a.preInit]);0<a.preIn
+ }
+ );
+ })();
+-export default ZD;
+\ No newline at end of file
++export default ZD;
+diff --git a/www/js/lib/zstddec-wasm.js b/www/js/lib/zstddec-wasm.js
+index d19e945..77b8945 100644
+--- a/www/js/lib/zstddec-wasm.js
++++ b/www/js/lib/zstddec-wasm.js
+@@ -1,6 +1,6 @@
+ 
+ var ZD = (function() {
+-  var _scriptDir = import.meta.url;
++  var _scriptDir = self.__KIWIX_USB_EMERGENCY__ ? 'data:text/javascript,' : import.meta.url;
+   
+   return (
+ function(ZD) {
+@@ -29,4 +29,4 @@ if(a.preInit)for("function"==typeof a.preInit&&(a.preInit=[a.preInit]);0<a.preIn
+ }
+ );
+ })();
+-export default ZD;
+\ No newline at end of file
++export default ZD;
+diff --git a/www/js/lib/zstddec_wrapper.js b/www/js/lib/zstddec_wrapper.js
+index 9eb8121..dfeb0f1 100644
+--- a/www/js/lib/zstddec_wrapper.js
++++ b/www/js/lib/zstddec_wrapper.js
+@@ -95,7 +95,7 @@ var instantiateDecoder = function (instance) {
+ };
+ 
+ // Select asm or wasm conditionally
+-if ('WebAssembly' in self && 'fetch' in self) {
++if (!self.__KIWIX_USB_EMERGENCY__ && 'WebAssembly' in self && 'fetch' in self) {
+     console.debug('Instantiating WASM zstandard decoder');
+     ZSTDMachineType = 'WASM';
+ } else {
+@@ -104,7 +104,10 @@ if ('WebAssembly' in self && 'fetch' in self) {
+ }
+ 
+ var loadASM = function () {
+-    ZDASM().then(function (inst) {
++    var moduleOptions = self.__KIWIX_USB_EMERGENCY__ ? {
++        locateFile: function () { return 'data:application/octet-stream;base64,'; }
++    } : undefined;
++    ZDASM(moduleOptions).then(function (inst) {
+         params.decompressorAPI.assemblerMachineType = ZSTDMachineType;
+         instantiateDecoder(inst);
+     }).catch(function (err) {

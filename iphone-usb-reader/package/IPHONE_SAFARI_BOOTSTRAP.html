@@ -1,0 +1,10 @@
+<!doctype html>
+<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>WESDATA iPhone Reader</title>
+<style>body{font:17px -apple-system,sans-serif;max-width:38rem;margin:3rem auto;padding:0 1.2rem;color:#17202a}button,label{display:block;background:#173b57;color:white;border:0;border-radius:12px;padding:1rem;margin:1.5rem 0;font-weight:700;text-align:center}.small{font-size:.85rem;color:#59636e}</style></head>
+<body><h1>WESDATA Offline Reader</h1><p>Select <b>IPHONE_ZIM_READER_PAYLOAD.html</b> from the USB. Safari will load the reader entirely from that file.</p>
+<label>Load reader<input id="reader" type="file" accept="text/html,.html" hidden></label>
+<p id="status" class="small">No internet connection is used.</p>
+<script>
+const input=document.getElementById('reader'),status=document.getElementById('status');
+input.addEventListener('change',async()=>{const file=input.files&&input.files[0];if(!file)return;status.textContent='Loading '+file.name+'…';try{const text=await file.text();if(!text.includes('__KIWIX_USB_EMERGENCY__'))throw new Error('That is not the WESDATA reader payload.');document.open();document.write(text);document.close()}catch(error){status.textContent='Could not load reader: '+error.message}});
+</script></body></html>

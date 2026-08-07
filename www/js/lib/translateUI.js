@@ -45,6 +45,10 @@ function loadTranslationStrings (langCode) {
     if (!/^[a-zA-Z]{2,4}$/.test(langCode)) {
         return Promise.reject(new Error('Invalid language code: ' + langCode));
     }
+    if (self.__KIWIX_USB_EMERGENCY__ && langCode === 'en' && document.localeJson && document.localeJson.en) {
+        currentLanguage = document.localeJson.en.translation;
+        return Promise.resolve();
+    }
     return util.getJSONPObject('../i18n/' + langCode + '.jsonp.js').then(function (translations) {
         currentLanguage = translations[langCode]['translation'];
         // i18next.init({
