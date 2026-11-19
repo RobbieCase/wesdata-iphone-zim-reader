@@ -1,45 +1,27 @@
-# WESDATA iPhone USB ZIM Reader
+# iPhone ZIM Reader
 
-Private preservation repository for an experimental way to open a static ZIM
-archive from a USB drive in Safari without Kiwix for iOS, an installed PWA, an
-App Store download, a web server, Wi-Fi, or cellular service.
+An experimental Safari reader for opening static ZIM archives directly from a USB drive. It bundles Kiwix JS into a single HTML file so you can browse offline without installing an app or running a local web server.
 
-This repository is based on Kiwix JS 4.3.15 at upstream commit
-`38b3c7f89f3a4d0ac94f6b3e01b38fd1f85f04e8`. It preserves the complete modified
-source tree, the reproducible single-file builder, the generated reader package,
-license notices, and the exact patch against upstream.
+**Tested in Safari on macOS. Physical iPhone testing is pending.** The macOS test opened an illustrated knots archive from USB and rendered the complete Bowline article. See [test notes](TEST_NOTES.md) for the setup and results.
 
-## Status
+## Try it from USB
 
-- The USB flow was tested in desktop Safari on macOS on 2026-08-06.
-- The reader selected `Knots_illustrated_2026-07.zim` directly from the USB,
-  displayed its article index and images, and opened the complete Bowline article.
-- Testing on a physical iPhone is still pending. Do not describe this as proven
-  iPhone support or a novel invention until it succeeds reproducibly on real iOS
-  hardware.
+1. Copy the [launcher text file](iphone-usb-reader/package/IPHONE_OFFLINE_START_URL.txt) and [reader HTML file](iphone-usb-reader/package/IPHONE_ZIM_READER_PAYLOAD.html) to a USB drive alongside a small, static `.zim` archive. On iPhone, use a data-capable adapter if needed and confirm the drive appears in Files.
+2. Copy the full `data:text/html;base64,...` line from the launcher into Safari’s address bar and open it.
+3. Choose **Load reader** and select the reader HTML file from the USB drive.
+4. Continue in **Restricted mode** if prompted, then select your ZIM archive.
 
-## How the fallback works
+The [USB setup guide](iphone-usb-reader/package/README_IPHONE_FIRST.txt) uses the original WESDATA folder layout and includes troubleshooting. The [package folder](iphone-usb-reader/package) also has an optional Apple Shortcuts recipe.
 
-1. The user copies a small `data:text/html;base64,...` launcher from a text file
-   into Safari's address bar.
-2. That launcher uses a normal file input to read the generated 2 MB HTML reader
-   payload from the USB through Files.
-3. The payload replaces the launcher document and runs a modified, bundled Kiwix
-   JS entirely inside the Safari tab.
-4. Kiwix JS Restricted mode reads a user-selected static ZIM directly from the
-   USB. Pure JavaScript/ASM XZ and Zstandard decoders avoid external WASM files.
+## How it works
 
-No USB library content or personal data is included in this repository.
+The launcher loads the reader through Safari’s file picker. The reader then uses Kiwix JS Restricted mode to read the archive from the drive. It bundles the XZ and Zstandard decoders so Safari can read the data without fetching external WebAssembly files.
 
-## Try the preserved package
+Start with a small, static archive. Dynamic Zimit archives may render incompletely, and very large archives may run into Safari’s memory limits. Keep the Safari tab open while the reader is loading content. Use trusted archives.
 
-The ready-to-copy files are in [`iphone-usb-reader/package`](iphone-usb-reader/package).
-Follow `README_IPHONE_FIRST.txt` there and test with a small, conventional
-MediaWiki-style ZIM before attempting multi-gigabyte archives.
+## Build from source
 
-## Rebuild
-
-Use a supported Node.js and npm environment:
+From the repository root with Node.js and npm installed, run:
 
 ```sh
 npm ci
@@ -47,25 +29,8 @@ npm run build-min
 node iphone-usb-reader/build.mjs
 ```
 
-The builder writes the generated launcher, data URL, JavaScript payload, and
-Shortcut helper into `iphone-usb-reader/package`.
+The builder writes the launcher, reader payload, and Shortcut helper to [`iphone-usb-reader/package`](iphone-usb-reader/package).
 
-## Important limitations
+## Upstream and license
 
-- This is unofficial, experimental work and is not endorsed by Kiwix or Apple.
-- Restricted mode is intended primarily for static ZIMs. Dynamic/Zimit archives
-  may be incomplete or unusable.
-- iOS may impose memory or file-selection limits, especially for very large ZIMs.
-- Safari must keep the tab alive while content is being decoded.
-- Only open trusted ZIM archives. Treat offline medical and emergency information
-  as potentially stale.
-
-## Upstream and licensing
-
-Kiwix JS is licensed under GNU GPL v3. The full license and source notice are in
-the package directory. `MODIFIED_SOURCE.patch` records the source changes, and
-the modified files are committed directly in this repository. The original
-upstream project README is preserved as [`UPSTREAM_README.md`](UPSTREAM_README.md).
-
-- Upstream: <https://github.com/kiwix/kiwix-js>
-- Upstream commit: `38b3c7f89f3a4d0ac94f6b3e01b38fd1f85f04e8`
+This is an independent experiment based on [Kiwix JS 4.3.15](https://github.com/kiwix/kiwix-js/tree/38b3c7f89f3a4d0ac94f6b3e01b38fd1f85f04e8), distributed under the [GNU General Public License v3](LICENSE-GPLv3.txt). See the [upstream README](UPSTREAM_README.md), [source notice](iphone-usb-reader/package/SOURCE_NOTICE.txt), and [patch against upstream](iphone-usb-reader/package/MODIFIED_SOURCE.patch).
