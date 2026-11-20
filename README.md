@@ -2,7 +2,7 @@
 
 An experimental Safari reader for opening static ZIM archives directly from a USB drive. It bundles Kiwix JS into a single HTML file so you can browse offline without installing an app or running a local web server.
 
-**Tested in Safari on macOS and on an iPhone.** The macOS test opened an illustrated knots archive from USB and rendered the complete Bowline article. See [test notes](TEST_NOTES.md) for the setup and results.(TEST_NOTES.md) for the setup and results.
+**Tested in Safari on macOS and on an iPhone.** The macOS test opened an illustrated knots archive from USB and rendered the complete Bowline article. See [test notes](TEST_NOTES.md) for the setup and results.
 
 ## Try it from USB
 
